@@ -26,43 +26,79 @@ public class Oven {
 	boolean heatingElementOn = false;
 	String name;
 	Timer timer = new Timer();
-	int remainingTime = 120;
+	static int remainingTime = 120;
 
 	//constructor
 	public Oven(String name) {
 		this.name = name;
-		timer.cancel(); //make sure that when oven starts, the timer isn't counting
 	}
 
 	//starts the oven and the timer countdown
 	public void start() {
-		heatingElementOn = true;
+		if (this.heatingElementOn) {
+			System.out.println("Oven is already running");
+			return;
+		}
+		this.heatingElementOn = true;
 		System.out.println("Oven is on");
+		int delay = 1000;
+		int interval = 1000; //1000 ms
+		System.out.println("Remaining time: " + remainingTime);
+		this.timer = new Timer();
+		this.timer.scheduleAtFixedRate(
+			new TimerTask() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					remainingTime--;
+					if (remainingTime == 0) {
+						processTimerUp();
+					} else {
+						System.out.println("Remaining time: " + remainingTime);
+					}
+				}
+			}, delay, interval
+		);
 	}
 
 	//sets the timer to a manual value
 	public void setTimer(int time) {
-		remainingTime = time;
-		System.out.println("Timer set to " + time + " minutes");
+		if(!heatingElementOn) {
+			remainingTime = time;
+			System.out.println("Timer set to " + time + " minutes");
+		} else {
+			System.out.println("Timer already in Progress");
+		}
 	}
 
 	//returns the remaining time on the timer
 	public int getRemainingTime() {
-		reuturn time;
+		if(this.heatingElementOn) {
+			return remainingTime;
+		} else {
+			return 0;
+		}
 	}
 
 	//stops the oven and clears the timer
 	public void stop() {
-		heatingElementOn = false;
+		this.heatingElementOn = false;
+		this.timer.cancel();
 		System.out.println("Oven manual shutoff");
 		remainingTime = 120;
 	}
 
 	//when the timer reaches 0, we call this method to turn off the heating element and notify the user that the heating is done
 	public void processTimerUp() {
+		this.timer.cancel();
 		heatingElementOn = false;
 		System.out.println("Heating is done");
 		remainingTime = 120;
+	}
+	
+	//prints heating element status
+	public void statusCheck() {
+		System.out.println("Heating element status = " + this.heatingElementOn);
 	}
 
 	//toString
